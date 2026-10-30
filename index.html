@@ -1,0 +1,838 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Quotex Journal</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{--bg:#fff;--fg:#000;--mut:#666;--soft:#f1f1f1;--g:#0a8f3c;--r:#d6221f;--amber:#ffc400}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+body{padding-bottom:calc(78px + env(safe-area-inset-bottom))}
+button,input,textarea,select{font:inherit;color:inherit}
+.pos{color:var(--g)}.neg{color:var(--r)}.mut{color:var(--mut)}
+header.top{position:sticky;top:0;z-index:20;background:#000;color:#fff;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+header.top h1{font-size:18px;margin:0;letter-spacing:.3px}
+body.practice header.top{background:var(--amber);color:#000}
+.seg{display:flex;border:2px solid currentColor;border-radius:999px;overflow:hidden}
+.seg button{background:transparent;border:0;padding:8px 14px;font-weight:700;font-size:13px;letter-spacing:.5px;min-height:40px}
+.seg button.on{background:#fff;color:#000}
+body.practice .seg button.on{background:#000;color:var(--amber)}
+.banner{padding:8px 14px;font-size:13px;font-weight:700;text-align:center;letter-spacing:.3px}
+.banner.live{background:#e9e9e9;color:#000}
+.banner.practice{background:repeating-linear-gradient(45deg,#ffc400,#ffc400 14px,#000 14px,#000 28px);color:#000;padding:0}
+.banner.practice span{display:block;background:var(--amber);margin:5px 0;padding:6px 10px}
+main{padding:12px 14px;max-width:640px;margin:0 auto}
+.card{border:2px solid #000;border-radius:14px;padding:14px;margin:0 0 12px;background:#fff}
+.card h2{font-size:13px;letter-spacing:.8px;text-transform:uppercase;margin:0 0 10px;color:#000}
+.balance{background:#000;color:#fff;border-color:#000}
+.balance .lbl{font-size:12px;letter-spacing:1px;opacity:.8}
+.balance .big{font-size:40px;font-weight:800;margin:2px 0;font-variant-numeric:tabular-nums}
+.balance .sub{font-size:13px;opacity:.8;margin-bottom:12px}
+body.practice .balance{background:#fff;color:#000;border:4px dashed #000}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.row>*{flex:1 1 140px}
+.btn{border:2px solid #000;background:#fff;color:#000;border-radius:12px;padding:12px 14px;font-weight:700;min-height:48px;cursor:pointer;text-align:center}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:#000;color:#fff}
+.balance .btn{border-color:#fff}
+.balance .btn.primary{background:#fff;color:#000}
+.balance .btn:not(.primary){background:transparent;color:#fff}
+.btn.big{min-height:54px;font-size:17px}
+.btn.dangerbtn{background:var(--r);border-color:var(--r);color:#fff}
+.btn.ghost{border-style:dashed}
+.btn[disabled]{opacity:.5}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{border:2px solid #000;border-radius:12px;padding:10px 12px}
+.stat .k{font-size:11px;letter-spacing:.8px;text-transform:uppercase;color:var(--mut)}
+.stat .v{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums}
+.stat .s{font-size:12px;color:var(--mut)}
+.bar{height:16px;border:2px solid #000;border-radius:99px;overflow:hidden;background:#fff}
+.bar>i{display:block;height:100%;background:#000}
+.stop{background:var(--r);color:#fff;border-radius:14px;padding:16px;margin:0 0 12px;border:3px solid #000}
+.stop .w{font-size:34px;font-weight:900;letter-spacing:2px}
+.stop ul{margin:6px 0 0;padding-left:20px}
+.okbox{border:2px solid var(--g);color:#000;border-radius:14px;padding:12px;margin:0 0 12px;background:#f2fbf5}
+.chip{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:8px;color:#fff;font-weight:800;margin-right:6px}
+.chip.win{background:var(--g)}.chip.loss{background:var(--r)}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;background:#000;display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:30}
+nav.tabs button{flex:1;background:transparent;border:0;color:#aaa;padding:8px 2px 9px;font-size:11px;font-weight:700;min-height:58px}
+nav.tabs button b{display:block;font-size:20px;line-height:1.1}
+nav.tabs button.on{color:#fff;background:#222}
+body.practice nav.tabs button.on{color:#000;background:var(--amber)}
+.day{margin:0 0 14px}
+.dayh{background:#000;color:#fff;border-radius:12px 12px 0 0;padding:8px 12px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:14px}
+.dayh .p{font-weight:800}
+.dayh .p.pos{color:#6df09a}.dayh .p.neg{color:#ff8a87}
+.tr{border:2px solid #000;border-top:0;padding:10px 12px;background:#fff}
+.tr:last-child{border-radius:0 0 12px 12px}
+.tr .top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.tag{display:inline-block;font-size:12px;font-weight:800;padding:2px 8px;border-radius:6px;color:#fff;margin-right:6px}
+.tag.win{background:var(--g)}.tag.loss{background:var(--r)}.tag.adj{background:#555}.tag.rb{background:#000}
+.tr .pl{font-weight:800;font-size:18px;font-variant-numeric:tabular-nums}
+.tr .meta{font-size:13px;color:var(--mut);margin-top:2px;word-break:break-word}
+.tr .acts{display:flex;gap:8px;margin-top:8px}
+.tr .acts .btn{min-height:40px;padding:6px 12px;flex:1;font-size:14px}
+label{display:block;font-size:13px;font-weight:700;margin:10px 0 4px}
+input[type=text],input[type=date],input[type=datetime-local],textarea{width:100%;border:2px solid #000;border-radius:10px;padding:11px 12px;font-size:16px;background:#fff;min-height:48px}
+textarea{resize:vertical}
+.hint{font-size:12px;color:var(--mut);font-weight:400}
+.err{color:var(--r);font-weight:700;font-size:14px;min-height:0;margin-top:6px}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:100;display:flex;align-items:flex-end;justify-content:center}
+.ov.center{align-items:center;padding:16px}
+.sheet,.dlg{background:#fff;width:100%;max-width:560px;border:3px solid #000;padding:16px;overflow:auto;max-height:94vh}
+.sheet{border-radius:18px 18px 0 0;padding-bottom:calc(16px + env(safe-area-inset-bottom))}
+.dlg{border-radius:16px}
+.dlg h3,.sheet h2{margin:0 0 8px}
+.dlg.danger{border-color:var(--r)}
+.dlgbody{margin-bottom:14px;font-size:15px}
+.dlgbody ul{margin:6px 0 0;padding-left:20px}
+.btnrow{display:flex;gap:10px}
+.btnrow .btn{flex:1}
+.rbtns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
+.rbtn{border:3px solid #000;border-radius:12px;background:#fff;min-height:58px;font-size:20px;font-weight:900;cursor:pointer}
+.rbtn.win.on{background:var(--g);color:#fff;border-color:var(--g)}
+.rbtn.loss.on{background:var(--r);color:#fff;border-color:var(--r)}
+.preview{background:var(--soft);border-radius:10px;padding:10px 12px;margin-top:10px;font-weight:700}
+.mini{border:2px solid #000;border-radius:10px;padding:8px 10px;margin-top:8px;font-size:14px}
+.mini.stopm{background:var(--r);color:#fff;border-color:#000}
+.mini.warn{background:#fff3cd}
+svg.chart{width:100%;height:auto;display:block}
+.empty{padding:18px;text-align:center;color:var(--mut);border:2px dashed #999;border-radius:12px}
+table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+th,td{padding:7px 4px;border-bottom:1px solid #ddd;text-align:right}
+th:first-child,td:first-child{text-align:left}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--mut)}
+#toast{position:fixed;left:12px;right:12px;bottom:calc(76px + env(safe-area-inset-bottom));z-index:200;display:flex;justify-content:center;pointer-events:none}
+#toast div{background:#000;color:#fff;padding:11px 16px;border-radius:12px;font-weight:700;font-size:14px;max-width:560px;box-shadow:0 4px 18px rgba(0,0,0,.35)}
+#toast div.err{background:var(--r)}
+#toast div.ok{background:#000;border:2px solid #6df09a}
+.setup{max-width:480px;margin:0 auto;padding:calc(24px + env(safe-area-inset-top)) 14px 40px}
+.setup .logo{width:64px;height:64px;border-radius:16px;background:#000;color:#fff;font-weight:900;font-size:26px;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+.setup h1{margin:0 0 4px}
+.sec{font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin:16px 2px 6px}
+.danger-zone{border-color:var(--r)}
+.status{font-size:12px;color:var(--mut);margin-top:8px;word-break:break-word}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--mut);margin-top:6px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="modals"></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<input type="file" id="restoreInput" hidden>
+<script>
+(() => {
+'use strict';
+
+/* ============================================================
+   Quotex Journal — all data lives on THIS device (IndexedDB).
+   ============================================================ */
+const APP = 'quotex-journal', VERSION = 1;
+const DB_NAME = 'quotex-journal-db', STORE = 'kv', KEY = 'state', LS_KEY = 'quotexJournal.state.v1';
+
+/* ---------- helpers ---------- */
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const r2 = n => Math.round((n + Number.EPSILON) * 100) / 100;
+const money = v => Math.abs(v).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+const fmt  = n => { const v = r2(n); return (v < 0 ? '-' : '') + '$' + money(v); };
+const fmtS = n => { const v = r2(n); return (v > 0 ? '+' : v < 0 ? '-' : '') + '$' + money(v); };
+const cls  = n => n > 0 ? 'pos' : n < 0 ? 'neg' : '';
+const pad  = n => String(n).padStart(2, '0');
+const localDate = ts => { const d = new Date(ts); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
+const localTime = ts => { const d = new Date(ts); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+const dtValue = ts => `${localDate(ts)}T${localTime(ts)}`;
+const dateObj = ds => { const [y, m, d] = ds.split('-').map(Number); return new Date(y, m - 1, d); };
+const longDate = ds => {
+  const lbl = dateObj(ds).toLocaleDateString('en-GB', {weekday: 'short', day: 'numeric', month: 'short', year: 'numeric'});
+  return ds === localDate(Date.now()) ? 'Today · ' + lbl : lbl;
+};
+const shortDate = ds => dateObj(ds).toLocaleDateString('en-GB', {day: 'numeric', month: 'short'});
+const parseNum = s => {
+  const t = String(s ?? '').trim().replace(/\s/g, '').replace(',', '.');
+  return /^-?(\d+\.?\d*|\.\d+)$/.test(t) ? Number(t) : NaN;
+};
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const isNum = v => typeof v === 'number' && Number.isFinite(v);
+
+/* ---------- persistent storage (IndexedDB, localStorage fallback) ---------- */
+const Store = {
+  mode: 'indexeddb', db: null,
+  open() {
+    return new Promise((res, rej) => {
+      if (!('indexedDB' in window)) return rej(new Error('IndexedDB unavailable'));
+      let req;
+      try { req = indexedDB.open(DB_NAME, 1); } catch (e) { return rej(e); }
+      req.onupgradeneeded = () => { req.result.createObjectStore(STORE); };
+      req.onsuccess = () => { req.result.onversionchange = () => req.result.close(); res(req.result); };
+      req.onerror = () => rej(req.error || new Error('IndexedDB open failed'));
+      req.onblocked = () => rej(new Error('IndexedDB blocked'));
+    });
+  },
+  async init() {
+    try { this.db = await this.open(); this.mode = 'indexeddb'; }
+    catch (e) { this.db = null; this.mode = 'localStorage'; }
+  },
+  get() {
+    if (this.mode === 'localStorage') return Promise.resolve(localStorage.getItem(LS_KEY));
+    return new Promise((res, rej) => {
+      const tx = this.db.transaction(STORE, 'readonly');
+      const rq = tx.objectStore(STORE).get(KEY);
+      rq.onsuccess = () => res(rq.result ?? null);
+      rq.onerror = () => rej(rq.error);
+    });
+  },
+  set(str) {
+    if (this.mode === 'localStorage') { try { localStorage.setItem(LS_KEY, str); return Promise.resolve(); } catch (e) { return Promise.reject(e); } }
+    return new Promise((res, rej) => {
+      const tx = this.db.transaction(STORE, 'readwrite');
+      tx.objectStore(STORE).put(str, KEY);
+      tx.oncomplete = () => res();
+      tx.onerror = () => rej(tx.error || new Error('Write failed'));
+      tx.onabort = () => rej(tx.error || new Error('Write aborted'));
+    });
+  },
+  clear() {
+    try { localStorage.removeItem(LS_KEY); } catch (e) {}
+    if (this.mode === 'localStorage') return Promise.resolve();
+    return new Promise((res, rej) => {
+      const tx = this.db.transaction(STORE, 'readwrite');
+      tx.objectStore(STORE).clear();   // only OUR object store
+      tx.oncomplete = () => res();
+      tx.onerror = () => rej(tx.error);
+      tx.onabort = () => rej(tx.error);
+    });
+  }
+};
+
+/* ---------- data model ---------- */
+const defaultSettings = () => ({target: 1000, risk: 10, payout: 85, maxTrades: 3, maxDailyLoss: 20, stopLosses: 2, stopWins: 2});
+const newBook = start => ({startingBalance: r2(start), trades: [], adjustments: [], notes: {}});
+const tradePnl = (result, stake, payout) => result === 'win' ? r2(stake * payout / 100) : -r2(stake);
+
+let state = null;                     // null => no journal yet (setup screen)
+const ui = {tab: 'home', mode: 'live', noteDate: null, installEvt: null};
+const book = () => ui.mode === 'practice' ? state.practice : state.live;
+
+function normalizeState(raw) {
+  if (!raw || typeof raw !== 'object') throw new Error('File is not a journal backup');
+  const src = raw.app === APP && raw.data ? raw.data : raw;       // accept wrapped backup or bare state
+  if (!src.live || !src.practice) throw new Error('Backup is missing journal data');
+  let seq = 1;
+  const normBook = (b, label) => {
+    if (!b || typeof b !== 'object') throw new Error(`Missing ${label} data`);
+    if (!isNum(b.startingBalance) || b.startingBalance < 0) throw new Error(`${label}: invalid starting balance`);
+    if (!Array.isArray(b.trades) || !Array.isArray(b.adjustments)) throw new Error(`${label}: invalid trade list`);
+    const trades = b.trades.map((t, i) => {
+      if (!t || (t.result !== 'win' && t.result !== 'loss') || !isNum(t.stake) || t.stake <= 0 || !isNum(t.payout) || t.payout < 0 || !isNum(t.ts))
+        throw new Error(`${label}: trade #${i + 1} is invalid`);
+      const s = isNum(t.seq) ? t.seq : seq; seq = Math.max(seq, s + 1);
+      return {id: String(t.id || uid()), seq: s, ts: t.ts, date: localDate(t.ts), createdAt: isNum(t.createdAt) ? t.createdAt : t.ts,
+        result: t.result, stake: r2(t.stake), payout: t.payout, pnl: tradePnl(t.result, t.stake, t.payout),
+        strategy: String(t.strategy || '').slice(0, 60), notes: String(t.notes || '').slice(0, 2000), ruleBreak: !!t.ruleBreak};
+    });
+    const adjustments = b.adjustments.map((a, i) => {
+      if (!a || !isNum(a.ts) || !isNum(a.from) || !isNum(a.to) || !isNum(a.delta)) throw new Error(`${label}: adjustment #${i + 1} is invalid`);
+      const s = isNum(a.seq) ? a.seq : seq; seq = Math.max(seq, s + 1);
+      return {id: String(a.id || uid()), seq: s, ts: a.ts, date: localDate(a.ts), from: r2(a.from), to: r2(a.to), delta: r2(a.delta), note: String(a.note || '').slice(0, 300)};
+    });
+    const notes = {};
+    if (b.notes && typeof b.notes === 'object') for (const [k, v] of Object.entries(b.notes)) if (/^\d{4}-\d{2}-\d{2}$/.test(k) && typeof v === 'string' && v.trim()) notes[k] = v;
+    return {startingBalance: r2(b.startingBalance), trades, adjustments, notes};
+  };
+  const def = defaultSettings(), settings = {};
+  for (const k of Object.keys(def)) { const v = src.settings && src.settings[k]; settings[k] = isNum(v) && v >= 0 ? v : def[k]; }
+  if (settings.target <= 0) settings.target = def.target;
+  return {app: APP, version: VERSION, createdAt: isNum(src.createdAt) ? src.createdAt : Date.now(), settings,
+    live: normBook(src.live, 'Live journal'), practice: normBook(src.practice, 'Practice'),
+    lastBackupAt: isNum(src.lastBackupAt) ? src.lastBackupAt : null, lastSavedAt: isNum(src.lastSavedAt) ? src.lastSavedAt : null, seq};
+}
+const nextSeq = () => state.seq++;
+
+/* ---------- saving ---------- */
+let chain = Promise.resolve();
+function persist(msg) {
+  if (!state) return chain;
+  state.lastSavedAt = Date.now();
+  const json = JSON.stringify(state);
+  chain = chain.then(() => Store.set(json))
+    .then(() => { if (msg !== false) toast(msg || 'Saved ✓', 'ok'); const el = $('#saveStatus'); if (el) el.textContent = saveStatusText(); })
+    .catch(err => { toast('⚠ SAVE FAILED: ' + (err && err.message || err) + ' — download a backup now!', 'err', 9000); });
+  return chain;
+}
+const saveStatusText = () => `Storage: ${Store.mode === 'indexeddb' ? 'IndexedDB (on this device)' : 'localStorage (fallback)'} · ${persistGranted === null ? '' : persistGranted ? 'protected from auto-cleanup · ' : ''}last saved ${state && state.lastSavedAt ? new Date(state.lastSavedAt).toLocaleString() : 'never'}`;
+let persistGranted = null;
+
+/* ---------- calculations ---------- */
+function timeline(b) {
+  const ev = [];
+  b.trades.forEach(t => ev.push({k: 't', ts: t.ts, seq: t.seq, o: t}));
+  b.adjustments.forEach(a => ev.push({k: 'a', ts: a.ts, seq: a.seq, o: a}));
+  ev.sort((x, y) => x.ts - y.ts || x.seq - y.seq);
+  let bal = b.startingBalance;
+  for (const e of ev) { bal = r2(bal + (e.k === 't' ? e.o.pnl : e.o.delta)); e.bal = bal; }
+  return ev;
+}
+const sortTrades = arr => arr.slice().sort((a, b) => a.ts - b.ts || a.seq - b.seq);
+function streakOf(trades) {            // trades sorted ascending
+  let type = null, n = 0;
+  for (let i = trades.length - 1; i >= 0; i--) {
+    if (type === null) { type = trades[i].result; n = 1; }
+    else if (trades[i].result === type) n++; else break;
+  }
+  return {type, n};
+}
+function derive(b, s, today = localDate(Date.now())) {
+  const ev = timeline(b);
+  const tradeTotal = r2(b.trades.reduce((a, t) => a + t.pnl, 0));
+  const adjTotal = r2(b.adjustments.reduce((a, x) => a + x.delta, 0));
+  const current = r2(b.startingBalance + tradeTotal + adjTotal);
+  const overall = r2(current - b.startingBalance);
+  const wins = b.trades.filter(t => t.result === 'win').length, losses = b.trades.length - wins;
+  const total = b.trades.length;
+  const todays = sortTrades(b.trades.filter(t => t.date === today));
+  const dailyPnl = r2(todays.reduce((a, t) => a + t.pnl, 0));
+  const span = s.target - b.startingBalance;
+  const progress = span > 0 ? (current - b.startingBalance) / span * 100 : (current >= s.target ? 100 : 0);
+  const endBal = {}; ev.forEach(e => { endBal[e.o.date] = e.bal; });
+  const byDate = {};
+  b.trades.forEach(t => { (byDate[t.date] = byDate[t.date] || []).push(t); });
+  const days = Object.keys(byDate).sort().map(date => {
+    const ts = byDate[date]; const w = ts.filter(t => t.result === 'win').length;
+    return {date, trades: ts.length, wins: w, losses: ts.length - w, pnl: r2(ts.reduce((a, t) => a + t.pnl, 0)), close: endBal[date]};
+  });
+  return {ev, tradeTotal, adjTotal, current, overall, wins, losses, total, winRate: total ? wins / total * 100 : null,
+    todays, dailyPnl, progress, days, streak: streakOf(sortTrades(b.trades))};
+}
+function checkRules(b, s, date) {
+  const tt = sortTrades(b.trades.filter(t => t.date === date));
+  const pnl = r2(tt.reduce((a, t) => a + t.pnl, 0));
+  const st = streakOf(tt), reasons = [];
+  if (s.maxTrades > 0 && tt.length >= s.maxTrades) reasons.push(`Maximum ${s.maxTrades} trades per day reached (${tt.length} taken)`);
+  if (s.maxDailyLoss > 0 && pnl <= -s.maxDailyLoss) reasons.push(`Daily max loss of ${fmt(s.maxDailyLoss)} reached (today ${fmtS(pnl)})`);
+  if (s.stopLosses > 0 && st.type === 'loss' && st.n >= s.stopLosses) reasons.push(`${st.n} consecutive losses (limit ${s.stopLosses})`);
+  if (s.stopWins > 0 && st.type === 'win' && st.n >= s.stopWins) reasons.push(`${st.n} consecutive wins (limit ${s.stopWins})`);
+  return {reasons, count: tt.length, pnl, streak: st};
+}
+
+/* ---------- validation ---------- */
+function validateSetting(key, v) {
+  if (!Number.isFinite(v)) return 'Enter a valid number';
+  switch (key) {
+    case 'target': case 'risk': if (v <= 0) return 'Must be greater than 0'; break;
+    case 'payout': if (v <= 0 || v > 1000) return 'Payout must be between 0 and 1000 %'; break;
+    case 'maxTrades': case 'stopLosses': case 'stopWins': if (v < 0 || !Number.isInteger(v)) return 'Use a whole number (0 = off)'; break;
+    case 'maxDailyLoss': case 'startLive': case 'startPractice': if (v < 0) return 'Cannot be negative'; break;
+  }
+  return null;
+}
+const RULE_FIELDS = [
+  ['target', 'Target balance ($)'], ['risk', 'Risk per trade ($)'], ['payout', 'Default payout (%)'],
+  ['maxTrades', 'Max trades per day (0 = no limit)'], ['maxDailyLoss', 'Daily max loss ($) (0 = off)'],
+  ['stopLosses', 'Stop after consecutive losses (0 = off)'], ['stopWins', 'Stop after consecutive wins (0 = off)']
+];
+const ruleFieldsHtml = (s, pfx, live) => RULE_FIELDS.map(([k, l]) =>
+  `<label for="${pfx}${k}">${l}</label><input type="text" inputmode="decimal" id="${pfx}${k}" ${live ? `data-set="${k}"` : ''} value="${s[k]}">`).join('');
+
+/* ---------- toast & modals ---------- */
+let toastTimer = null;
+function toast(msg, type = '', ms = 2600) {
+  const t = $('#toast'); t.innerHTML = `<div class="${type}">${esc(msg)}</div>`;
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.innerHTML = ''; }, ms);
+}
+function pushModal(html, center) {
+  const m = document.createElement('div'); m.className = 'ov' + (center ? ' center' : ''); m.innerHTML = html;
+  $('#modals').appendChild(m); return m;
+}
+const closeModal = m => m && m.remove();
+function confirmDialog({title, body, okText = 'Confirm', cancelText = 'Cancel', danger = false, html = false}) {
+  return new Promise(res => {
+    const m = pushModal(`<div class="dlg ${danger ? 'danger' : ''}" role="dialog" aria-modal="true"><h3>${esc(title)}</h3>
+      <div class="dlgbody">${html ? body : esc(body)}</div>
+      <div class="btnrow"><button class="btn" data-x="cancel">${esc(cancelText)}</button>
+      <button class="btn ${danger ? 'dangerbtn' : 'primary'}" data-x="ok">${esc(okText)}</button></div></div>`, true);
+    m.addEventListener('click', e => { const b = e.target.closest('[data-x]'); if (!b) return; closeModal(m); res(b.dataset.x === 'ok'); });
+  });
+}
+function infoDialog(title, body, html) {
+  return new Promise(res => {
+    const m = pushModal(`<div class="dlg" role="dialog"><h3>${esc(title)}</h3><div class="dlgbody">${html ? body : esc(body)}</div>
+      <div class="btnrow"><button class="btn primary" data-x="ok">OK</button></div></div>`, true);
+    m.addEventListener('click', e => { if (e.target.closest('[data-x]')) { closeModal(m); res(); } });
+  });
+}
+
+/* ---------- views ---------- */
+function render() {
+  const y = window.scrollY, app = $('#app');
+  if (!state) { document.body.className = ''; app.innerHTML = setupView(); return; }
+  const prac = ui.mode === 'practice';
+  document.body.className = prac ? 'practice' : '';
+  const views = {home: homeView, trades: tradesView, charts: chartsView, journal: journalView, settings: settingsView};
+  app.innerHTML = `
+  <header class="top"><h1>${prac ? 'PRACTICE' : 'Quotex Journal'}</h1>
+    <div class="seg" role="group" aria-label="Mode"><button data-act="mode" data-mode="live" class="${prac ? '' : 'on'}">LIVE</button><button data-act="mode" data-mode="practice" class="${prac ? 'on' : ''}">PRACTICE</button></div></header>
+  <div class="banner ${prac ? 'practice' : 'live'}">${prac ? '<span>🧪 PRACTICE MODE — test trades only. Not in your real journal, balance or stats.</span>' : '● LIVE JOURNAL — real trades &amp; real balance'}</div>
+  <main>${views[ui.tab]()}</main>
+  <nav class="tabs">${[['home','⌂','Home'],['trades','☰','Trades'],['charts','▤','Charts'],['journal','✎','Journal'],['settings','⚙','Settings']]
+    .map(([k, i, l]) => `<button data-act="tab" data-tab="${k}" class="${ui.tab === k ? 'on' : ''}"><b>${i}</b>${l}</button>`).join('')}</nav>`;
+  window.scrollTo(0, y);
+}
+
+function setupView() {
+  const s = defaultSettings();
+  return `<div class="setup"><div class="logo">QJ</div><h1>Quotex Journal</h1>
+  <p class="mut">Create a new journal. Everything is saved only on this device.</p>
+  <div class="card"><label for="s_start">Starting balance ($)</label><input type="text" inputmode="decimal" id="s_start" value="289.09">
+  <div class="sec">Trading rules (you can change these later)</div>${ruleFieldsHtml(s, 's_', false)}
+  <div class="err" id="setupErr"></div>
+  <button class="btn primary big" style="width:100%;margin-top:12px" data-act="createJournal">Start journal</button></div>
+  <div class="card"><b>Have a backup file?</b><p class="mut" style="margin:4px 0 10px">Restore a journal you saved earlier.</p>
+  <button class="btn big" style="width:100%" data-act="restore">Restore Backup</button></div></div>`;
+}
+
+function ruleStatusHtml(d, s) {
+  const rc = checkRules(book(), s, localDate(Date.now()));
+  if (rc.reasons.length) return `<div class="stop" id="stopBox"><div class="w">⛔ STOP</div><div><b>Do not take any more trades today.</b></div><ul>${rc.reasons.map(r => `<li>${esc(r)}</li>`).join('')}</ul></div>`;
+  const left = s.maxTrades > 0 ? `Trade ${rc.count + 1} of ${s.maxTrades} allowed today.` : 'No daily trade limit.';
+  const room = s.maxDailyLoss > 0 ? ` Loss room left: ${fmt(Math.max(0, s.maxDailyLoss + rc.pnl))}.` : '';
+  const st = rc.streak.n ? ` Streak today: ${rc.streak.n}${rc.streak.type === 'win' ? 'W' : 'L'}.` : '';
+  return `<div class="okbox" id="okBox">✅ <b>Rules OK.</b> ${esc(left + room + st)}</div>`;
+}
+
+function homeView() {
+  const b = book(), s = state.settings, d = derive(b, s), prac = ui.mode === 'practice';
+  const pct = Math.max(0, Math.min(100, d.progress));
+  const chips = d.todays.length ? d.todays.map(t => `<span class="chip ${t.result}">${t.result === 'win' ? 'W' : 'L'}</span>`).join('') : '<span class="mut">No trades yet today</span>';
+  const bk = state.lastBackupAt ? 'Last backup: ' + new Date(state.lastBackupAt).toLocaleString() : 'No backup downloaded yet — tap Save / Backup Data regularly.';
+  return `
+  <section class="card balance"><div class="lbl">${prac ? 'PRACTICE BALANCE (NOT REAL)' : 'CURRENT BALANCE · LIVE'}</div>
+    <div class="big" id="curBal">${fmt(d.current)}</div>
+    <div class="sub">Started ${fmt(b.startingBalance)} · Target ${fmt(s.target)}</div>
+    <div class="row"><button class="btn primary big" data-act="addTrade" id="btnAdd">＋ Add Trade</button><button class="btn big" data-act="editBalance" id="btnEditBal">✎ Edit Balance</button></div></section>
+  ${ruleStatusHtml(d, s)}
+  <div class="grid">
+    <div class="stat"><div class="k">Starting balance</div><div class="v" id="stStart">${fmt(b.startingBalance)}</div></div>
+    <div class="stat"><div class="k">Current balance</div><div class="v" id="stCur">${fmt(d.current)}</div></div>
+    <div class="stat"><div class="k">Daily P/L</div><div class="v ${cls(d.dailyPnl)}" id="stDaily">${fmtS(d.dailyPnl)}</div><div class="s">${d.todays.length} trade(s) today</div></div>
+    <div class="stat"><div class="k">Overall P/L</div><div class="v ${cls(d.overall)}" id="stOverall">${fmtS(d.overall)}</div><div class="s">Trades ${fmtS(d.tradeTotal)} · Adj ${fmtS(d.adjTotal)}</div></div>
+    <div class="stat"><div class="k">Total trades</div><div class="v" id="stTotal">${d.total}</div></div>
+    <div class="stat"><div class="k">Win rate</div><div class="v" id="stRate">${d.winRate === null ? '—' : d.winRate.toFixed(1) + '%'}</div></div>
+    <div class="stat"><div class="k">Wins</div><div class="v pos" id="stWins">${d.wins}</div></div>
+    <div class="stat"><div class="k">Losses</div><div class="v neg" id="stLosses">${d.losses}</div></div>
+  </div>
+  <section class="card" style="margin-top:12px"><h2>Target progress</h2>
+    <div class="bar"><i style="width:${pct}%"></i></div>
+    <div style="margin-top:6px"><b id="stProgress">${d.progress.toFixed(1)}%</b> <span class="mut">· ${d.current >= s.target ? '🎯 Target reached!' : fmt(s.target - d.current) + ' to go'}</span></div></section>
+  <section class="card"><h2>Today's trades</h2>${chips}</section>
+  <section class="card"><h2>Data</h2><div class="row">
+    <button class="btn" data-act="backup" id="btnBackup">💾 Save / Backup Data</button>
+    <button class="btn" data-act="restore" id="btnRestore">⬆ Restore Backup</button>
+    ${prac ? '<button class="btn" data-act="clearPractice" id="btnClearPracticeHome">🧹 Clear Practice Data</button>' : ''}</div>
+    <div class="status">${esc(bk)}</div><div class="status" id="saveStatus">${esc(saveStatusText())}</div></section>`;
+}
+
+function tradesView() {
+  const b = book(), d = derive(b, state.settings);
+  const dates = new Set([...b.trades.map(t => t.date), ...b.adjustments.map(a => a.date)]);
+  const list = [...dates].sort().reverse();
+  const dayMap = {}; d.days.forEach(x => dayMap[x.date] = x);
+  let html = `<div class="row" style="margin-bottom:12px"><button class="btn primary" data-act="addTrade">＋ Add Trade</button><button class="btn" data-act="csv" id="btnCsv">⬇ Export CSV</button></div>`;
+  if (!list.length) return html + '<div class="empty" id="emptyTrades">No trades yet.<br>Tap “Add Trade” to log your first one.</div>';
+  for (const date of list) {
+    const sm = dayMap[date];
+    const items = d.ev.filter(e => e.o.date === date).sort((x, y) => y.ts - x.ts || y.seq - x.seq);
+    html += `<div class="day"><div class="dayh"><span>${esc(longDate(date))}</span>
+      <span>${sm ? `${sm.trades} trade${sm.trades > 1 ? 's' : ''} · ${sm.wins}W ${sm.losses}L · ` : ''}<span class="p ${sm ? cls(sm.pnl) : ''}">${sm ? fmtS(sm.pnl) : ''}</span>${sm ? '' : 'Adjustment'}</span></div>`;
+    for (const e of items) {
+      if (e.k === 't') {
+        const t = e.o;
+        html += `<div class="tr" data-trade="${t.id}"><div class="top"><div><span class="tag ${t.result}">${t.result.toUpperCase()}</span>${t.ruleBreak ? '<span class="tag rb">RULE BREAK</span>' : ''}<span class="mut">${localTime(t.ts)}</span></div>
+          <div class="pl ${cls(t.pnl)}">${fmtS(t.pnl)}</div></div>
+          <div class="meta">Stake ${fmt(t.stake)} @ ${t.payout}% · Balance after ${fmt(e.bal)}${t.strategy ? ' · ' + esc(t.strategy) : ''}</div>
+          ${t.notes ? `<div class="meta">📝 ${esc(t.notes)}</div>` : ''}
+          <div class="acts"><button class="btn" data-act="editTrade" data-id="${t.id}">Edit</button><button class="btn" data-act="delTrade" data-id="${t.id}">Delete</button></div></div>`;
+      } else {
+        const a = e.o;
+        html += `<div class="tr" data-adj="${a.id}"><div class="top"><div><span class="tag adj">BALANCE EDIT</span><span class="mut">${localTime(a.ts)}</span></div>
+          <div class="pl ${cls(a.delta)}">${fmtS(a.delta)}</div></div>
+          <div class="meta">Manual adjustment ${fmt(a.from)} → ${fmt(a.to)}${a.note ? ' · ' + esc(a.note) : ''}</div>
+          <div class="acts"><button class="btn" data-act="delAdj" data-id="${a.id}">Delete adjustment</button></div></div>`;
+      }
+    }
+    html += '</div>';
+  }
+  return html;
+}
+
+/* ---------- charts (plain SVG, works offline) ---------- */
+const kfmt = v => (v < 0 ? '-' : '') + '$' + (Math.abs(v) >= 1000 ? (Math.abs(v) / 1000).toFixed(1) + 'k' : Math.abs(Math.round(v * 100) / 100));
+function lineChart(pts, startBal) {
+  if (pts.length < 2) return '<div class="empty">Add trades to see your balance curve.</div>';
+  const W = 340, H = 200, L = 50, R = 10, T = 14, B = 26;
+  const ys = pts.map(p => p.y).concat(startBal); let min = Math.min(...ys), max = Math.max(...ys);
+  if (max - min < 1) { max += 1; min -= 1; } const pd = (max - min) * .1; min -= pd; max += pd;
+  const X = i => L + (W - L - R) * (i / (pts.length - 1)), Y = v => T + (H - T - B) * (1 - (v - min) / (max - min));
+  const path = pts.map((p, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)} ${Y(p.y).toFixed(1)}`).join(' ');
+  const last = pts[pts.length - 1], col = last.y >= startBal ? '#0a8f3c' : '#d6221f';
+  const mid = (min + max) / 2;
+  return `<svg class="chart" id="balChart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Balance over time">
+    ${[min, mid, max].map(v => `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" stroke="#ddd"/><text x="${L - 4}" y="${Y(v) + 4}" font-size="10" text-anchor="end" fill="#666">${kfmt(v)}</text>`).join('')}
+    <line x1="${L}" x2="${W - R}" y1="${Y(startBal)}" y2="${Y(startBal)}" stroke="#000" stroke-dasharray="4 3"/>
+    <path d="${path}" fill="none" stroke="${col}" stroke-width="2.5" stroke-linejoin="round"/>
+    <circle cx="${X(pts.length - 1)}" cy="${Y(last.y)}" r="4.5" fill="${col}"/>
+    <text x="${L}" y="${H - 8}" font-size="10" fill="#666">${esc(pts[0].label)}</text><text x="${W - R}" y="${H - 8}" font-size="10" text-anchor="end" fill="#666">${esc(last.label)}</text></svg>
+    <div class="legend"><span>- - - starting balance</span><span><i style="background:${col}"></i>balance</span></div>`;
+}
+function barChart(days) {
+  if (!days.length) return '<div class="empty">No daily results yet.</div>';
+  days = days.slice(-30);
+  const W = 340, H = 190, L = 50, R = 10, T = 14, B = 26;
+  const mx = Math.max(1, ...days.map(x => Math.abs(x.pnl))) * 1.15;
+  const hi = Math.max(0, ...days.map(x => x.pnl)), lo = Math.min(0, ...days.map(x => x.pnl));
+  const top = Math.max(hi * 1.15, 0.01), bot = Math.min(lo * 1.15, -0.0);
+  const rng = (top - bot) || mx; const Y = v => T + (H - T - B) * (1 - (v - bot) / rng);
+  const slot = (W - L - R) / days.length, bw = Math.min(34, slot * .7);
+  return `<svg class="chart" id="dayChart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Daily profit and loss">
+    <line x1="${L}" x2="${W - R}" y1="${Y(0)}" y2="${Y(0)}" stroke="#000"/>
+    <text x="${L - 4}" y="${Y(top) + 8}" font-size="10" text-anchor="end" fill="#666">${kfmt(hi > 0 ? top : 0)}</text>
+    <text x="${L - 4}" y="${Y(bot)}" font-size="10" text-anchor="end" fill="#666">${bot < 0 ? kfmt(bot) : ''}</text>
+    ${days.map((x, i) => { const cx = L + slot * (i + .5), y0 = Y(0), y1 = Y(x.pnl);
+      return `<rect x="${(cx - bw / 2).toFixed(1)}" y="${Math.min(y0, y1).toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(1, Math.abs(y1 - y0)).toFixed(1)}" fill="${x.pnl >= 0 ? '#0a8f3c' : '#d6221f'}"><title>${shortDate(x.date)}: ${fmtS(x.pnl)}</title></rect>`; }).join('')}
+    <text x="${L}" y="${H - 8}" font-size="10" fill="#666">${shortDate(days[0].date)}</text><text x="${W - R}" y="${H - 8}" font-size="10" text-anchor="end" fill="#666">${shortDate(days[days.length - 1].date)}</text></svg>`;
+}
+function chartsView() {
+  const b = book(), d = derive(b, state.settings);
+  const pts = [{y: b.startingBalance, label: 'Start'}].concat(d.ev.map(e => ({y: e.bal, label: shortDate(e.o.date)})));
+  const wl = d.total ? `<div class="bar" style="margin-top:6px"><i style="width:${d.wins / d.total * 100}%;background:#0a8f3c"></i></div><div class="legend"><span><i style="background:#0a8f3c"></i>${d.wins} wins</span><span><i style="background:#fff;border:1px solid #000"></i>${d.losses} losses</span></div>` : '<div class="empty">No trades yet.</div>';
+  const rows = d.days.slice().reverse().map(x => `<tr><td>${shortDate(x.date)}</td><td>${x.trades}</td><td>${x.wins}/${x.losses}</td><td class="${cls(x.pnl)}"><b>${fmtS(x.pnl)}</b></td><td>${fmt(x.close)}</td></tr>`).join('');
+  return `<section class="card"><h2>Balance curve</h2>${lineChart(pts, b.startingBalance)}</section>
+  <section class="card"><h2>Daily P/L (last 30 days)</h2>${barChart(d.days)}</section>
+  <section class="card"><h2>Win / loss split</h2>${wl}</section>
+  <section class="card"><h2>Daily summary</h2>${rows ? `<table id="dailyTable"><thead><tr><th>Date</th><th>Trades</th><th>W/L</th><th>P/L</th><th>Close</th></tr></thead><tbody>${rows}</tbody></table>` : '<div class="empty">No daily results yet.</div>'}</section>`;
+}
+
+function journalView() {
+  const b = book(), prac = ui.mode === 'practice';
+  const today = localDate(Date.now()); if (!ui.noteDate) ui.noteDate = today;
+  const dates = Object.keys(b.notes).sort().reverse();
+  return `<section class="card"><h2>${prac ? 'Practice notes' : 'Journal entry'}</h2>
+    <label for="noteDate">Date</label><input type="date" id="noteDate" value="${ui.noteDate}">
+    <label for="noteText">What went well? What to improve? Emotions, discipline, market conditions…</label>
+    <textarea id="noteText" rows="9" placeholder="Write your journal entry — it saves automatically.">${esc(b.notes[ui.noteDate] || '')}</textarea>
+    <div class="status" id="noteStatus">Saved automatically as you type.</div></section>
+  <section class="card"><h2>Past entries</h2>${dates.length ? dates.map(k => `<div class="tr" style="border:2px solid #000;border-radius:10px;margin-bottom:8px;cursor:pointer" data-act="openNote" data-date="${k}"><b>${esc(longDate(k))}</b><div class="meta">${esc(b.notes[k].slice(0, 120))}${b.notes[k].length > 120 ? '…' : ''}</div></div>`).join('') : '<div class="empty">No entries yet.</div>'}</section>`;
+}
+
+function settingsView() {
+  const s = state.settings, prac = ui.mode === 'practice';
+  return `<section class="card"><h2>Trading rules</h2>${ruleFieldsHtml(s, 'set_', true)}
+    <div class="status">Rules are checked per day. Changes save automatically and apply to both Live and Practice.</div></section>
+  <section class="card"><h2>Starting balances</h2>
+    <label for="set_startLive">Live journal starting balance ($)</label><input type="text" inputmode="decimal" id="set_startLive" data-set="startLive" value="${state.live.startingBalance}">
+    <label for="set_startPractice">Practice starting balance ($)</label><input type="text" inputmode="decimal" id="set_startPractice" data-set="startPractice" value="${state.practice.startingBalance}">
+    <div class="status">To fix your <b>current</b> balance without touching the starting balance, use “Edit Balance” on the Home screen.</div></section>
+  <section class="card"><h2>Backup &amp; export</h2><div class="row">
+    <button class="btn" data-act="backup" id="btnBackup2">💾 Save / Backup Data</button>
+    <button class="btn" data-act="restore" id="btnRestore2">⬆ Restore Backup</button>
+    <button class="btn" data-act="csv" id="btnCsv2">⬇ Export CSV (${prac ? 'practice' : 'live'})</button></div>
+    <div class="status" id="saveStatus">${esc(saveStatusText())}</div></section>
+  <section class="card"><h2>Practice / test data</h2><p class="mut" style="margin-top:0">Erases only practice trades, practice balance edits and practice notes. Your Live journal is untouched.</p>
+    <button class="btn" style="width:100%" data-act="clearPractice" id="btnClearPractice">🧹 Clear Practice Data</button></section>
+  ${ui.installEvt ? '<section class="card"><h2>Install</h2><button class="btn primary" style="width:100%" data-act="install">Install app on this phone</button></section>' : ''}
+  <section class="card danger-zone"><h2 style="color:var(--r)">Danger zone</h2><p class="mut" style="margin-top:0">Permanently deletes ALL journal data on this device: live trades, practice trades, notes, balances and rules.</p>
+    <button class="btn dangerbtn" style="width:100%" data-act="reset" id="btnReset">⚠ Reset Journal</button></section>
+  <div class="status" style="text-align:center">Quotex Journal v${VERSION} · works offline · data never leaves your phone</div>`;
+}
+
+/* ---------- trade form ---------- */
+function openTradeForm(editId) {
+  const b = book(), s = state.settings;
+  const existing = editId ? b.trades.find(t => t.id === editId) : null;
+  if (editId && !existing) return;
+  let result = existing ? existing.result : null, busy = false;
+  const strategies = [...new Set(b.trades.map(t => t.strategy).filter(Boolean))];
+  const m = pushModal(`<div class="sheet" role="dialog" aria-modal="true"><h2>${existing ? 'Edit trade' : 'Add trade'} ${ui.mode === 'practice' ? '<span class="tag rb" style="background:#ffc400;color:#000">PRACTICE</span>' : ''}</h2>
+    <div id="f_rules"></div>
+    <label>Result</label><div class="rbtns"><button type="button" class="rbtn win" data-res="win" id="f_win">WIN</button><button type="button" class="rbtn loss" data-res="loss" id="f_loss">LOSS</button></div>
+    <label for="f_stake">Stake ($)</label><input type="text" inputmode="decimal" id="f_stake" value="${existing ? existing.stake : s.risk}">
+    <label for="f_payout">Payout (%)</label><input type="text" inputmode="decimal" id="f_payout" value="${existing ? existing.payout : s.payout}">
+    <div class="preview" id="f_prev"></div>
+    <label for="f_strategy">Strategy</label><input type="text" id="f_strategy" list="f_strats" maxlength="60" autocomplete="off" value="${esc(existing ? existing.strategy : '')}"><datalist id="f_strats">${strategies.map(x => `<option value="${esc(x)}">`).join('')}</datalist>
+    <label for="f_dt">Date &amp; time</label><input type="datetime-local" id="f_dt" value="${dtValue(existing ? existing.ts : Date.now())}">
+    <label for="f_notes">Notes</label><textarea id="f_notes" rows="3" maxlength="2000">${esc(existing ? existing.notes : '')}</textarea>
+    <div class="err" id="f_err"></div>
+    <div class="btnrow" style="margin-top:12px"><button class="btn" id="f_cancel">Cancel</button><button class="btn primary" id="f_save">Save trade</button></div></div>`);
+  const q = id => $(id, m);
+  const read = () => ({stake: parseNum(q('#f_stake').value), payout: parseNum(q('#f_payout').value), ts: new Date(q('#f_dt').value).getTime()});
+  function refresh() {
+    q('#f_win').classList.toggle('on', result === 'win'); q('#f_loss').classList.toggle('on', result === 'loss');
+    const v = read(), okNums = v.stake > 0 && v.payout >= 0 && Number.isFinite(v.ts);
+    const prev = q('#f_prev');
+    if (result && okNums) {
+      const pnl = tradePnl(result, v.stake, v.payout);
+      const base = derive(b, s).current - (existing ? existing.pnl : 0);
+      prev.innerHTML = `P/L: <span class="${cls(pnl)}">${fmtS(pnl)}</span> · Balance after: <b>${fmt(r2(base + pnl))}</b>`;
+    } else prev.textContent = 'Choose WIN or LOSS and enter stake & payout to preview.';
+    const box = q('#f_rules'); box.innerHTML = '';
+    q('#f_save').textContent = existing ? 'Save changes' : 'Save trade';
+    if (!existing && Number.isFinite(v.ts)) {
+      const rc = checkRules(b, s, localDate(v.ts));
+      if (rc.reasons.length) { box.innerHTML = `<div class="mini stopm" id="f_stop"><b>⛔ STOP — rule triggered</b><ul style="margin:4px 0 0;padding-left:18px">${rc.reasons.map(r => `<li>${esc(r)}</li>`).join('')}</ul></div>`; q('#f_save').textContent = 'Log anyway (breaks rules)'; }
+      else if (s.maxDailyLoss > 0 && v.stake > 0 && r2(rc.pnl - v.stake) <= -s.maxDailyLoss - 0.0001 && r2(-(rc.pnl - v.stake)) > s.maxDailyLoss)
+        box.innerHTML = `<div class="mini warn" id="f_warn">⚠ If this trade loses, your day would be ${fmtS(rc.pnl - v.stake)} — beyond the ${fmt(s.maxDailyLoss)} daily max loss.</div>`;
+    }
+  }
+  m.addEventListener('click', e => { const r = e.target.closest('[data-res]'); if (r) { result = r.dataset.res; refresh(); } });
+  ['#f_stake', '#f_payout', '#f_dt'].forEach(id => { q(id).addEventListener('input', refresh); q(id).addEventListener('change', refresh); });
+  q('#f_cancel').addEventListener('click', () => closeModal(m));
+  q('#f_save').addEventListener('click', async () => {
+    if (busy) return;                                    // blocks double-tap duplicates
+    const err = q('#f_err'); err.textContent = '';
+    const v = read(), strategy = q('#f_strategy').value.trim(), notes = q('#f_notes').value.trim();
+    if (!result) { err.textContent = 'Choose WIN or LOSS.'; return; }
+    if (!(v.stake > 0)) { err.textContent = 'Enter a stake greater than 0.'; return; }
+    if (!(v.payout >= 0 && v.payout <= 1000)) { err.textContent = 'Enter a payout % between 0 and 1000.'; return; }
+    if (!Number.isFinite(v.ts)) { err.textContent = 'Enter a valid date and time.'; return; }
+    busy = true; q('#f_save').disabled = true;
+    try {
+      if (!existing) {
+        let ruleBreak = false;
+        const rc = checkRules(b, s, localDate(v.ts));
+        if (rc.reasons.length) {
+          const ok = await confirmDialog({title: '⛔ STOP — you are breaking your rules', danger: true, html: true, okText: 'Log it anyway', cancelText: 'Cancel',
+            body: `<ul>${rc.reasons.map(r => `<li>${esc(r)}</li>`).join('')}</ul><p>The trade will be saved and flagged <b>RULE BREAK</b>. Log it?</p>`});
+          if (!ok) { busy = false; q('#f_save').disabled = false; return; }
+          ruleBreak = true;
+        }
+        const now = Date.now();
+        const dup = b.trades.find(t => t.result === result && t.stake === r2(v.stake) && t.payout === v.payout && t.strategy === strategy && t.notes === notes && now - t.createdAt < 120000);
+        if (dup) {
+          const ok = await confirmDialog({title: 'Possible duplicate', okText: 'Add anyway', cancelText: 'Cancel',
+            body: `An identical ${result.toUpperCase()} trade (${fmt(r2(v.stake))} @ ${v.payout}%) was saved less than 2 minutes ago. Add it again?`});
+          if (!ok) { busy = false; q('#f_save').disabled = false; return; }
+        }
+        b.trades.push({id: uid(), seq: nextSeq(), ts: v.ts, date: localDate(v.ts), createdAt: now, result, stake: r2(v.stake), payout: v.payout,
+          pnl: tradePnl(result, v.stake, v.payout), strategy, notes, ruleBreak});
+      } else {
+        Object.assign(existing, {ts: v.ts, date: localDate(v.ts), result, stake: r2(v.stake), payout: v.payout, pnl: tradePnl(result, v.stake, v.payout), strategy, notes});
+      }
+      closeModal(m); render();
+      await persist(existing ? 'Trade updated ✓ — stats recalculated' : 'Trade saved ✓');
+    } finally { busy = false; }
+  });
+  refresh();
+}
+
+/* ---------- actions ---------- */
+async function editBalance() {
+  const b = book(), d = derive(b, state.settings);
+  const m = pushModal(`<div class="sheet" role="dialog" aria-modal="true"><h2>Edit balance</h2>
+    <p class="mut" style="margin-top:0">${ui.mode === 'practice' ? 'Practice' : 'Live'} balance is currently <b>${fmt(d.current)}</b>. Enter your real balance now. Your <b>starting balance (${fmt(b.startingBalance)}) will not change</b>.</p>
+    <label for="eb_val">New current balance ($)</label><input type="text" inputmode="decimal" id="eb_val" value="${d.current}">
+    <label for="eb_note">Reason (optional)</label><input type="text" id="eb_note" maxlength="100" placeholder="e.g. deposit, withdrawal, sync with Quotex">
+    <div class="err" id="eb_err"></div>
+    <div class="btnrow" style="margin-top:12px"><button class="btn" id="eb_cancel">Cancel</button><button class="btn primary" id="eb_ok">Review change</button></div></div>`);
+  $('#eb_cancel', m).onclick = () => closeModal(m);
+  $('#eb_ok', m).onclick = async () => {
+    const v = parseNum($('#eb_val', m).value), note = $('#eb_note', m).value.trim(), err = $('#eb_err', m);
+    if (!Number.isFinite(v) || v < 0) { err.textContent = 'Enter a valid balance (0 or more).'; return; }
+    const to = r2(v), from = derive(b, state.settings).current, delta = r2(to - from);
+    if (delta === 0) { closeModal(m); toast('Balance unchanged'); return; }
+    const ok = await confirmDialog({title: 'Apply balance adjustment?', okText: 'Yes, apply', danger: true, html: true,
+      body: `<p>Change current balance from <b>${fmt(from)}</b> to <b>${fmt(to)}</b> (<b class="${cls(delta)}">${fmtS(delta)}</b>).</p><p>Starting balance stays <b>${fmt(b.startingBalance)}</b>. Overall P/L will be recalculated. This is logged in your trade history.</p>`});
+    if (!ok) return;
+    b.adjustments.push({id: uid(), seq: nextSeq(), ts: Date.now(), date: localDate(Date.now()), from, to, delta, note});
+    closeModal(m); render(); await persist('Balance updated ✓');
+  };
+}
+
+function download(filename, text, type) {
+  const url = URL.createObjectURL(new Blob([text], {type}));
+  const a = document.createElement('a'); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+}
+const stamp = () => { const n = Date.now(); return localDate(n) + '-' + localTime(n).replace(':', ''); };
+function doBackup() {
+  try {
+    const name = `quotex-journal-backup-${stamp()}.json`;
+    download(name, JSON.stringify({app: APP, version: VERSION, exportedAt: new Date().toISOString(), data: state}, null, 2), 'application/json');
+    state.lastBackupAt = Date.now(); persist(false); render();
+    toast('Backup downloaded ✓ ' + name, 'ok', 4500); return true;
+  } catch (e) { toast('Backup failed: ' + e.message, 'err', 6000); return false; }
+}
+const csvCell = v => { v = String(v ?? ''); if (/^[=+\-@]/.test(v)) v = "'" + v; return /[",\n\r]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+function doCsv() {
+  const b = book(), d = derive(b, state.settings), mode = ui.mode;
+  const rows = [['Mode', 'Type', 'Date', 'Time', 'Result', 'Stake', 'Payout %', 'P/L', 'Balance after', 'Strategy', 'Notes', 'Rule break']];
+  d.ev.forEach(e => {
+    if (e.k === 't') { const t = e.o; rows.push([mode, 'Trade', t.date, localTime(t.ts), t.result, t.stake.toFixed(2), t.payout, t.pnl.toFixed(2), e.bal.toFixed(2), t.strategy, t.notes, t.ruleBreak ? 'yes' : '']); }
+    else { const a = e.o; rows.push([mode, 'Balance adjustment', a.date, localTime(a.ts), '', '', '', a.delta.toFixed(2), e.bal.toFixed(2), '', a.note, '']); }
+  });
+  download(`quotex-journal-${mode}-${stamp()}.csv`, '﻿' + rows.map(r => r.map(csvCell).join(',')).join('\r\n'), 'text/csv');
+  toast(`CSV exported ✓ (${d.total} trades)`, 'ok');
+}
+
+async function restoreFrom(file) {
+  try {
+    const text = await file.text();
+    let raw; try { raw = JSON.parse(text); } catch (e) { throw new Error('That file is not valid JSON'); }
+    const ns = normalizeState(raw);
+    const when = raw.exportedAt ? new Date(raw.exportedAt).toLocaleString() : 'unknown date';
+    const warn = state ? '<p><b>This will REPLACE all journal data currently on this device.</b> Download a backup first if you want to keep it.</p>' : '';
+    const ok = await confirmDialog({title: 'Restore this backup?', okText: 'Restore', danger: !!state, html: true,
+      body: `<p>Backup from <b>${esc(when)}</b>:</p><ul><li>Live trades: <b>${ns.live.trades.length}</b> (start ${fmt(ns.live.startingBalance)})</li><li>Practice trades: <b>${ns.practice.trades.length}</b></li><li>Journal notes: <b>${Object.keys(ns.live.notes).length + Object.keys(ns.practice.notes).length}</b></li></ul>${warn}`});
+    if (!ok) { toast('Restore cancelled'); return; }
+    state = ns; ui.mode = 'live'; ui.tab = 'home'; ui.noteDate = null;
+    render(); await persist(false);
+    await infoDialog('Restore complete ✓', `Restored ${ns.live.trades.length} live and ${ns.practice.trades.length} practice trades.`);
+  } catch (e) {
+    toast('Restore failed: ' + e.message + ' — nothing was changed', 'err', 7000);
+  }
+}
+
+async function clearPractice() {
+  const p = state.practice;
+  const n = p.trades.length, a = p.adjustments.length, nn = Object.keys(p.notes).length;
+  const ok = await confirmDialog({title: 'Clear practice data?', okText: 'Clear practice data', danger: true, html: true,
+    body: `<p>This deletes <b>${n}</b> practice trade(s), <b>${a}</b> practice balance edit(s) and <b>${nn}</b> practice note(s).</p><p>Your <b>Live journal is not affected</b>.</p>`});
+  if (!ok) return;
+  commitNote(); state.practice = newBook(p.startingBalance); ui.noteDate = null;
+  render(); await persist('Practice data cleared ✓');
+}
+
+async function resetJournal() {
+  const live = state.live.trades.length, prac = state.practice.trades.length;
+  const m = pushModal(`<div class="dlg danger" role="dialog" aria-modal="true"><h3>⚠ Reset the whole journal?</h3>
+    <div class="dlgbody"><p>This will <b>permanently delete</b> everything stored by this app on this device:</p>
+    <ul><li>${live} live trade(s) and all balance edits</li><li>${prac} practice trade(s)</li><li>All journal notes, daily statistics &amp; win/loss streaks</li><li>Your rules and starting balance (you'll set them again)</li></ul>
+    <p><b>This cannot be undone.</b> Other websites and phone data are not touched.</p></div>
+    <button class="btn" style="width:100%;margin-bottom:10px" data-x="backup" id="rs_backup">💾 Download a backup first</button>
+    <div class="btnrow"><button class="btn" data-x="cancel" id="rs_cancel">Cancel</button><button class="btn dangerbtn" data-x="next" id="rs_next">Continue…</button></div></div>`, true);
+  m.addEventListener('click', async e => {
+    const x = e.target.closest('[data-x]'); if (!x) return;
+    if (x.dataset.x === 'backup') { doBackup(); return; }
+    closeModal(m);
+    if (x.dataset.x !== 'next') return;
+    const ok = await confirmDialog({title: 'FINAL CONFIRMATION', danger: true, okText: 'Yes, delete everything permanently', cancelText: 'No, keep my data',
+      body: 'Are you absolutely sure? All trades, practice results, notes and settings will be erased for good.'});
+    if (!ok) { toast('Reset cancelled — nothing was deleted'); return; }
+    try {
+      clearTimeout(noteTimer); pendingNote = null;
+      await chain;                              // let any in-flight save finish first
+      await Store.clear();
+      const left = await Store.get();
+      if (left !== null) throw new Error('Data still present after clearing');
+      state = null; ui.mode = 'live'; ui.tab = 'home'; ui.noteDate = null;
+      render(); window.scrollTo(0, 0);
+      toast('Journal reset ✓ — enter a new starting balance', 'ok', 4500);
+    } catch (err) { toast('Reset failed: ' + err.message, 'err', 8000); }
+  });
+}
+
+/* ---------- journal notes (auto-save) ---------- */
+let noteTimer = null, pendingNote = null;
+function commitNote() {
+  clearTimeout(noteTimer);
+  if (!pendingNote || !state) { pendingNote = null; return; }
+  const {date, text, mode} = pendingNote; pendingNote = null;
+  const b = mode === 'practice' ? state.practice : state.live;
+  if (text.trim()) b.notes[date] = text; else delete b.notes[date];
+  persist(false).then(() => { const s = $('#noteStatus'); if (s) s.textContent = 'Saved ✓ ' + new Date().toLocaleTimeString(); });
+}
+
+/* ---------- events ---------- */
+const ACT = {
+  tab(el) { commitNote(); ui.tab = el.dataset.tab; render(); window.scrollTo(0, 0); },
+  mode(el) { if (ui.mode === el.dataset.mode) return; commitNote(); ui.mode = el.dataset.mode; ui.noteDate = null; render(); toast(ui.mode === 'practice' ? 'Practice mode — test data only' : 'Live journal'); },
+  addTrade() { openTradeForm(); },
+  editTrade(el) { openTradeForm(el.dataset.id); },
+  async delTrade(el) {
+    const b = book(), t = b.trades.find(x => x.id === el.dataset.id); if (!t) return;
+    const ok = await confirmDialog({title: 'Delete this trade?', okText: 'Delete', danger: true, html: true,
+      body: `<p><b>${t.result.toUpperCase()} ${fmtS(t.pnl)}</b> — stake ${fmt(t.stake)} @ ${t.payout}% on ${esc(shortDate(t.date))} ${localTime(t.ts)}.</p><p>Balance and all statistics will be recalculated.</p>`});
+    if (!ok) return;
+    b.trades = b.trades.filter(x => x.id !== t.id); render(); await persist('Trade deleted ✓ — stats recalculated');
+  },
+  async delAdj(el) {
+    const b = book(), a = b.adjustments.find(x => x.id === el.dataset.id); if (!a) return;
+    const ok = await confirmDialog({title: 'Delete balance adjustment?', okText: 'Delete', danger: true, body: `Remove the manual adjustment of ${fmtS(a.delta)}? Your current balance will change by ${fmtS(-a.delta)}.`});
+    if (!ok) return;
+    b.adjustments = b.adjustments.filter(x => x.id !== a.id); render(); await persist('Adjustment removed ✓');
+  },
+  editBalance, backup() { doBackup(); }, restore() { const i = $('#restoreInput'); i.value = ''; i.click(); },
+  csv() { doCsv(); }, clearPractice, reset: resetJournal,
+  openNote(el) { commitNote(); ui.noteDate = el.dataset.date; render(); window.scrollTo(0, 0); },
+  async install() { const e = ui.installEvt; if (!e) return; e.prompt(); await e.userChoice; ui.installEvt = null; render(); },
+  async createJournal() {
+    const err = $('#setupErr'); err.textContent = '';
+    const start = parseNum($('#s_start').value); const st = validateSetting('startLive', start);
+    if (st) { err.textContent = 'Starting balance: ' + st; return; }
+    const s = {};
+    for (const [k, label] of RULE_FIELDS) { const v = parseNum($('#s_' + k).value), e = validateSetting(k, v); if (e) { err.textContent = label + ': ' + e; return; } s[k] = v; }
+    state = {app: APP, version: VERSION, createdAt: Date.now(), settings: s, live: newBook(start), practice: newBook(start), lastBackupAt: null, lastSavedAt: null, seq: 1};
+    ui.mode = 'live'; ui.tab = 'home'; render(); await persist('Journal created ✓');
+  }
+};
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]'); if (!el || e.target.closest('#modals')) return;
+  const f = ACT[el.dataset.act]; if (f) f(el);
+});
+$('#restoreInput').addEventListener('change', e => { const f = e.target.files && e.target.files[0]; if (f) restoreFrom(f); });
+
+document.addEventListener('input', e => {
+  if (e.target.id === 'noteText') {
+    pendingNote = {date: ui.noteDate, text: e.target.value, mode: ui.mode};
+    const s = $('#noteStatus'); if (s) s.textContent = 'Saving…';
+    clearTimeout(noteTimer); noteTimer = setTimeout(commitNote, 400);
+  }
+});
+document.addEventListener('change', async e => {
+  if (e.target.id === 'noteDate') { commitNote(); ui.noteDate = e.target.value || localDate(Date.now()); render(); return; }
+  const el = e.target.closest('[data-set]'); if (!el || !state) return;
+  const key = el.dataset.set, v = parseNum(el.value), bad = validateSetting(key, v);
+  if (bad) { toast(bad, 'err', 4000); render(); return; }
+  if (key === 'startLive' || key === 'startPractice') {
+    const b = key === 'startLive' ? state.live : state.practice, nv = r2(v);
+    if (nv === b.startingBalance) { render(); return; }
+    const d = derive(b, state.settings), after = r2(d.current - b.startingBalance + nv);
+    const ok = await confirmDialog({title: 'Change starting balance?', okText: 'Change', danger: true, html: true,
+      body: `<p>Starting balance: <b>${fmt(b.startingBalance)}</b> → <b>${fmt(nv)}</b>.</p><p>Current balance is calculated as starting balance + trades + adjustments, so it will change from <b>${fmt(d.current)}</b> to <b>${fmt(after)}</b>. If your real balance is already right, use “Edit Balance” instead.</p>`});
+    if (!ok) { render(); return; }
+    b.startingBalance = nv; render(); await persist('Starting balance saved ✓'); return;
+  }
+  state.settings[key] = key === 'payout' || key === 'target' || key === 'risk' || key === 'maxDailyLoss' ? r2(v) : v;
+  render(); await persist('Settings saved ✓');
+});
+document.addEventListener('visibilitychange', () => { if (document.hidden) commitNote(); else if (state && !$('#modals').children.length) render(); });
+window.addEventListener('pagehide', commitNote);
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); ui.installEvt = e; if (state && ui.tab === 'settings') render(); });
+
+/* ---------- start ---------- */
+(async function init() {
+  await Store.init();
+  try {
+    const str = await Store.get();
+    if (str) state = normalizeState(JSON.parse(str));
+  } catch (e) {
+    state = null;
+    $('#app').innerHTML = `<div class="setup"><h1>⚠ Saved data could not be read</h1><p>${esc(e.message)}</p><p>Your stored data has <b>not</b> been deleted. Restore a backup file below, or reload the page.</p><button class="btn big" style="width:100%" data-act="restore">Restore Backup</button></div>`;
+    return;
+  }
+  if (navigator.storage && navigator.storage.persist) { try { persistGranted = await navigator.storage.persist(); } catch (e) {} }
+  render();
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) navigator.serviceWorker.register('sw.js').catch(() => {});
+})();
+
+window.__qj = {get state() { return state; }, flush: () => chain, storeMode: () => Store.mode, derive, checkRules};
+})();
+</script>
+</body>
+</html>
